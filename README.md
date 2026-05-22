@@ -1,7 +1,7 @@
 <img src=assets/icon.png height="64"> <img src=assets/sprites-override/ui/logo.png height="64">
 
 
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/TinyLake/MindustryX/build.yml?label=Building)  ![GitHub Release](https://img.shields.io/github/v/release/TinyLake/MindustryX?label=Latest%20Version&labelColor=blue&color=green&link=https%3A%2F%2Fgithub.com%2FTinyLake%2FMindustryX%2Freleases)  ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/TinyLake/MindustryX/total?label=Downloads)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/BEK-Group/MindustryX/build.yml?label=Building)  ![GitHub Release](https://img.shields.io/github/v/release/BEK-Group/MindustryX?label=Latest%20Version&labelColor=blue&color=green&link=https%3A%2F%2Fgithub.com%2FBEK-Group%2FMindustryX%2Freleases)  ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/BEK-Group/MindustryX/total?label=Downloads)
 
 ## MindustryX
 
@@ -13,7 +13,7 @@
 预览版：`{date}.{code}-{branch}`，前三位是发布日期，第四位是构件号。后面是编译分支。例如`2024.05.25.238-client-wz`
 
 ### 安装方式
-正式版在 [Releases](https://github.com/TinyLake/MindustryX/releases) 中下载对应平台的MDTX
+正式版在 [Releases](https://github.com/BEK-Group/MindustryX/releases) 中下载对应平台的MDTX
 其中：
 * apk为安卓版
 * `desktop.jar`为桌面版，
@@ -28,14 +28,14 @@
 ### 客户端功能
 为了减少迁移不适，客户端涵盖了 **绝大部分学术端功能** ，并进行大量整理和优化。 除此之外已有大量MDTX原创功能与性能优化。
 
-详见 [MDTX wiki](https://github.com/TinyLake/MindustryX/wiki) 或者查阅 **[Patches](./patches)**
+详见 [MDTX wiki](https://github.com/BEK-Group/MindustryX/wiki) 或者查阅 **[Patches](./patches)**
 
 
 **Loader 需要作为mod导入游戏**
 
 ### 贡献代码
 1. 初始化项目:
-    * 克隆使用 recursive 选项: `git clone --recursive https://github.com/TinyLake/MindustryX.git`    
+    * 克隆使用 recursive 选项: `git clone --recursive https://github.com/BEK-Group/MindustryX.git`    
     * 或者在项目目录，执行 `git submodule update --init`
 2. 应用 Patch 文件: 在 MDTX 根目录运行 `./scripts/applyPatches.sh`
 3. 修改并提交: 在 [`work/`](work) 中提交你的代码
@@ -43,7 +43,7 @@
 5. 在 MDTX 根目录里提交 Patch 文件
 
 ```shell
-  git clone --recursive https://github.com/TinyLake/MindustryX.git && cd MindustryX
+  git clone --recursive https://github.com/BEK-Group/MindustryX.git && cd MindustryX
   git submodule update --init
   bash ./scripts/applyPatches.sh
   # Modifiy and commit inside work
@@ -72,10 +72,10 @@ See `./patches/`.
 
 ## Star History
 
-<a href="https://www.star-history.com/#TinyLake/MindustryX&Date">
+<a href="https://www.star-history.com/#BEK-Group/MindustryX&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=TinyLake/MindustryX&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=TinyLake/MindustryX&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=TinyLake/MindustryX&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=BEK-Group/MindustryX&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=BEK-Group/MindustryX&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=BEK-Group/MindustryX&type=Date" />
  </picture>
 </a>
