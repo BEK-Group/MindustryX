@@ -8,6 +8,7 @@ import mindustry.game.EventType.*;
 import mindustry.gen.*;
 import mindustry.mod.*;
 import mindustryX.features.*;
+import mindustryX.features.ai.*;
 
 import java.net.*;
 import java.util.*;
@@ -40,11 +41,12 @@ public class Hooks implements ApplicationListener{
     public void init(){
         Log.infoTag("MindustryX", "Hooks.init");
         LogicExt.init();
+        TimeControl.init();
+        AIBridge.init();
         if(!Vars.headless){
             if(AutoUpdate.INSTANCE.getActive())
                 AutoUpdate.INSTANCE.checkUpdate();
             RenderExt.init();
-            TimeControl.init();
             UIExt.init();
             ReplayController.init();
             ArcOld.colorizeContent();
@@ -93,6 +95,7 @@ public class Hooks implements ApplicationListener{
 
     @Override
     public void update(){
+        AIBridge.update();
         if(!Vars.headless){
             updateTitle();
             BindingExt.pollKeys();

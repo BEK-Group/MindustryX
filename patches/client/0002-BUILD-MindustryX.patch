@@ -12,14 +12,13 @@ patchArc改写成transform
 way-zer <himc.wicp@gmail.com> on 2024/4/27 at 18:57
 ---
  build.gradle          | 6 ------
- core/build.gradle.kts | 4 ++++
+ core/build.gradle.kts | 1 +
  gradle.properties     | 2 +-
- server/build.gradle   | 2 ++
  settings.gradle       | 2 ++
- 5 files changed, 9 insertions(+), 7 deletions(-)
+ 4 files changed, 4 insertions(+), 7 deletions(-)
 
 diff --git a/build.gradle b/build.gradle
-index 5b3ed67fdc80a301be344e2e469b1a2879406bf6..225fe1b5c45b87a14dd7a60d2e21d9be15306179 100644
+index d1c9edec56bee76a62dff09e0c136dadc8963451..a5b4e36f46c80aeca5dd73c881a73d4c58120c94 100644
 --- a/build.gradle
 +++ b/build.gradle
 @@ -205,12 +205,6 @@ project(":core"){
@@ -36,15 +35,10 @@ index 5b3ed67fdc80a301be344e2e469b1a2879406bf6..225fe1b5c45b87a14dd7a60d2e21d9be
      jar{
          exclude("mindustry/entities/comp/**")
 diff --git a/core/build.gradle.kts b/core/build.gradle.kts
-index 712c4750377c079ec77bfea24bd889db58090b98..e1904111c3ca730e830b5c1bac3c1d5cacc6b3d1 100644
+index 712c4750377c079ec77bfea24bd889db58090b98..441b4366206a21f8a5eedc433dd55b00de6a15d8 100644
 --- a/core/build.gradle.kts
 +++ b/core/build.gradle.kts
-@@ -1,10 +1,12 @@
- import org.gradle.jvm.tasks.Jar
- import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
- import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
- 
+@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
  plugins {
      java
      kotlin("jvm")
@@ -52,18 +46,8 @@ index 712c4750377c079ec77bfea24bd889db58090b98..e1904111c3ca730e830b5c1bac3c1d5c
  }
  sourceSets.main {
      java.setSrcDirs(listOf("src/", "../../src/", layout.buildDirectory.dir("/generated/sources/annotationProcessor/java/main")))
-@@ -14,7 +16,9 @@ sourceSets.main {
- tasks {
-     withType<KotlinCompile>().configureEach {
-         compilerOptions {
-+            languageVersion.set(KotlinVersion.KOTLIN_2_1)
-             jvmTarget.set(JvmTarget.JVM_1_8)
-+            freeCompilerArgs.add("-Xname-based-destructuring=complete")
-         }
-     }
- 
 diff --git a/gradle.properties b/gradle.properties
-index a01749009d82d2cb1a20b31e77fc3868b56b163d..06785489b65d6c05d62e8d1a5fb56dc981bc05f7 100644
+index b0d3848bc1dedb03583b6aa89bebf0e99e7a1d67..ea6a8baeae10409eaa03a1259c4082fc62b34d24 100644
 --- a/gradle.properties
 +++ b/gradle.properties
 @@ -18,7 +18,7 @@ kapt.use.worker.api=true
@@ -75,19 +59,6 @@ index a01749009d82d2cb1a20b31e77fc3868b56b163d..06785489b65d6c05d62e8d1a5fb56dc9
  #needed for android compilation
  android.useAndroidX=true
  org.gradle.caching=true
-diff --git a/server/build.gradle b/server/build.gradle
-index 7c1293746b6329d9904f237b94b1466869f9c47c..6085c24c1882c38982af03174166fa7c5fcc668e 100644
---- a/server/build.gradle
-+++ b/server/build.gradle
-@@ -49,6 +49,8 @@ tasks.register('dist', Jar){
-     exclude("icons/icon_64.png")
-     exclude("**hs_err**.log")
- 
-+    exclude("META-INF/kotlin*.kotlin_module")
-+
-     duplicatesStrategy = 'exclude'
- 
-     manifest{
 diff --git a/settings.gradle b/settings.gradle
 index e688b9a8ea87e6ac6e6899c0a2807fba38ff18be..1c8ab04d2d3469220b45117ec2684979a317a92f 100644
 --- a/settings.gradle

@@ -402,6 +402,8 @@ object NewTransferScanMode {
                     }
                     return build.block.liquidFilter.any { it }
                 }
+
+                else -> return false
             }
         }
     }

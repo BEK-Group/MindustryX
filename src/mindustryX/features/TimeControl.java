@@ -44,9 +44,9 @@ public class TimeControl{
         gameSpeed = speed;
         if(fpsLock){
             fpsLock = false;
-            Vars.ui.announce(VarsX.bundle.fpsLockOff(gameSpeed));
+            if(Vars.ui != null) Vars.ui.announce(VarsX.bundle.fpsLockOff(gameSpeed));
         }else{
-            Vars.ui.announce(VarsX.bundle.currentGameSpeed(gameSpeed));
+            if(Vars.ui != null) Vars.ui.announce(VarsX.bundle.currentGameSpeed(gameSpeed));
         }
         Time.setDeltaProvider(gameSpeed == 1f ? origin : deltaProvider);
     }
@@ -54,7 +54,7 @@ public class TimeControl{
     public static void setFpsLock(){
         gameSpeedBalance.clear();
         fpsLock = true;
-        Vars.ui.announce(VarsX.bundle.fpsLockEnabled(targetFps));
+        if(Vars.ui != null) Vars.ui.announce(VarsX.bundle.fpsLockEnabled(targetFps));
         Time.setDeltaProvider(deltaProvider);
     }
 

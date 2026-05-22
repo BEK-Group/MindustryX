@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: build <build@local>
+Date: Thu, 26 Feb 2026 16:32:12 +0800
+Subject: [PATCH] FIX: tools ImagePacker classpath
+
+---
+ tools/build.gradle | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tools/build.gradle b/tools/build.gradle
+index e76f2594a54db837b0b4bb3c48bec944497bc374..6c5a149e8636a39290d4d4d08e272c65b0eee018 100644
+--- a/tools/build.gradle
++++ b/tools/build.gradle
+@@ -154,7 +154,7 @@ tasks.register('doPack'){
+         file(genFolder).mkdirs()
+         javaexec{
+             mainClass = "mindustry.tools.ImagePacker"
+-            classpath = sourceSets.main.runtimeClasspath
++            classpath = files(sourceSets.main.runtimeClasspath, project(":core").sourceSets.main.runtimeClasspath)
+             workingDir = genFolder
+             standardOutput = System.out
+             errorOutput = System.err
+@@ -211,7 +211,7 @@ tasks.register('genSprites', JavaExec){
+     finalizedBy 'antialiasGen'
+ 
+     mainClass = "mindustry.tools.ImagePacker"
+-    classpath = sourceSets.main.runtimeClasspath
++    classpath = files(sourceSets.main.runtimeClasspath, project(":core").sourceSets.main.runtimeClasspath)
+     standardInput = System.in
+     workingDir = genFolder
+ }

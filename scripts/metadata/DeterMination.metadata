@@ -1,0 +1,85 @@
+ID DeterMination
+FQ_NAME DeterMination.Module
++DEPENDS coreMindustry 
+
+ID DeterMination/anonymous/veilId
+FQ_NAME DeterMination.anonymous.VeilId
++DEPENDS DeterMination module
++DEPENDS wayzer module
++DEPENDS wayzer/user/nameExt
++DEPENDS wayzer/user/shortID
++DEPENDS wayzer/vote
+
+ID DeterMination/voteMiner
+FQ_NAME DeterMination.VoteMiner
++DEPENDS DeterMination module
++DEPENDS wayzer module
++DEPENDS wayzer/vote
++DEPENDS coreMindustry/util/spawnAround
+
+ID DeterMination/hiddenMessage
+FQ_NAME DeterMination.HiddenMessage
++DEPENDS DeterMination module
++DEPENDS wayzer module
++DEPENDS wayzer/user/shortID
++DEPENDS coreMindustry/menu
++DEPENDS coreMindustry/utilNextChat
+
+ID DeterMination/banChangeTeam
+FQ_NAME DeterMination.BanChangeTeam
++DEPENDS DeterMination module
++DEPENDS wayzer module
+
+ID DeterMination/stopVoteing
+FQ_NAME DeterMination.StopVoteing
++DEPENDS DeterMination module
++DEPENDS wayzer/vote
+
+ID DeterMination/stopActWhenVoteing
+FQ_NAME DeterMination.StopActWhenVoteing
++DEPENDS DeterMination module
++DEPENDS wayzer/cmds/voteOb
++DEPENDS wayzer/user/ban
+
+ID DeterMination/altAccountGuard
+FQ_NAME DeterMination.AltAccountGuard
++DEPENDS DeterMination module
++DEPENDS wayzer module
++DEPENDS wayzer/vote
++DEPENDS wayzer/map/betterTeam
++DEPENDS wayzer/user/shortID
++DEPENDS coreMindustry/menu
+
+ID DeterMination/mvpTeamBalancer
+FQ_NAME DeterMination.MvpTeamBalancer
++DEPENDS DeterMination module
++DEPENDS wayzer module
++DEPENDS wayzer/vote
++DEPENDS wayzer/map/betterTeam
++DEPENDS wayzer/user/shortID
++DEPENDS coreMindustry/menu
++DEPENDS coreMindustry/utilTextInput
+
+ID DeterMination/griefRollbackVote
+FQ_NAME DeterMination.GriefRollbackVote
++DEPENDS DeterMination module
++DEPENDS wayzer module
++DEPENDS wayzer/vote
++DEPENDS wayzer/user/ban
++DEPENDS wayzer/user/shortID
+
+ID DeterMination/polyAiKick
+FQ_NAME DeterMination.PolyAiKick
++DEPENDS DeterMination module
++DEPENDS wayzer module
++DEPENDS wayzer/vote
++DEPENDS wayzer/user/ban
++DEPENDS wayzer/user/shortID
++DEPENDS coreMindustry/utilTextInput
++DEPENDS coreMindustry/menu
+
+ID DeterMination/newJoinGuideGate
+FQ_NAME DeterMination.NewJoinGuideGate
++DEPENDS DeterMination module
++DEPENDS wayzer/map/betterTeam
++DEPENDS coreMindustry/menu

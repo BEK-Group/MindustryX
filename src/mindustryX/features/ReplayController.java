@@ -88,7 +88,6 @@ public class ReplayController{
             return;
         }
         try{
-            //TODO 不应该在主线程写数据包IO
             writer.writePacket(p);
         }catch(Exception e){
             net.disconnect();
@@ -124,7 +123,7 @@ public class ReplayController{
             float startTime = Time.time;
             try{
                 while(replaying){
-                    var info = reader.nextPacket();//EOF
+                    var info = reader.nextPacket();
                     Packet packet = reader.readPacket(info);
                     while(Time.time - startTime < info.getOffset())
                         Thread.sleep(1);
@@ -140,16 +139,12 @@ public class ReplayController{
                 }
             }catch(EOFException e){
                 replaying = false;
-                Core.app.post(() -> {
-                    showInfo();
-                    stopPlay();
-                });
+                showInfo();
             }catch(Exception e){
                 replaying = false;
+                ui.showException("Replay Error", e);
+            }finally{
                 stopPlay();
-                Core.app.post(() -> {
-                    ui.showException("Replay Error", e);
-                });
             }
         });
     }

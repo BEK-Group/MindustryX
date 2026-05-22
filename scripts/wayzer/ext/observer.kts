@@ -1,0 +1,91 @@
+@file:Depends("wayzer/map/betterTeam")
+@file:Depends("coreMindustry/menu")
+
+package wayzer.ext
+
+import cf.wayzer.placehold.DynamicVar
+import coreMindustry.MenuBuilder
+import mindustry.game.Team
+import mindustry.gen.PlayerSpawnCallPacket
+import mindustry.world.blocks.storage.CoreBlock
+
+val teams = contextScript<wayzer.map.BetterTeam>()
+
+@Savable(serializable = false)
+val obTeam = mutableMapOf<Player, Team>()
+customLoad(::obTeam) {
+    obTeam.putAll(it.filterKeys { it.con != null })
+}
+fun getObTeam(player: Player): Team? = obTeam[player]?.takeIf { it != player.team() }
+export(::getObTeam)
+listen<EventType.ResetEvent> { obTeam.clear() }
+listen<EventType.PlayerLeave> { obTeam.remove(it.player) }
+listenPacket2Server<PlayerSpawnCallPacket> { con, _ -> con.player !in obTeam }
+listen<EventType.TapEvent> {
+    if (it.tile.build is CoreBlock.CoreBuild && it.player in obTeam) {
+        val team = it.tile.team()
+        if (obTeam[it.player] == team) return@listen
+        obTeam[it.player] = team
+        broadcast(
+            "[yellow]玩家[green]{player.name}[yellow]正在观战{team}"
+                .with("player" to it.player, "team" to team), type = MsgType.InfoToast, quite = true
+        )
+    }
+}
+registerVarForType<Player>().apply {
+    registerChild("prefix.3obTeam", "观战队伍显示") {
+        getObTeam(it)?.let { team -> "[观战${team.coloredName()}]" }
+    }
+}
+fun setObTeam(player: Player, team: Team?) {
+    if (team == null) {
+        teams.changeTeam(player, teams.spectateTeam)
+        obTeam.remove(player)
+        teams.changeTeam(player)
+        broadcast(
+            "[yellow]玩家[green]{player.name}[yellow]重新投胎到{player.team.colorizeName}"
+                .with("player" to player), type = MsgType.InfoToast, quite = true
+        )
+        return
+    }
+
+    teams.changeTeam(player, teams.spectateTeam)
+    obTeam[player] = team
+    broadcast(
+        "[yellow]玩家[green]{player.name}[yellow]正在观战{team}"
+            .with("player" to player, "team" to team), type = MsgType.InfoToast, quite = true
+    )
+    player.sendMessage("[green]再次输入指令可以重新投胎。点击核心可以快速切换观战队伍")
+}
+
+command("ob", "切换为观察者") {
+    type = CommandType.Client
+    permission = "wayzer.ext.observer"
+    body {
+        val player = player!!
+        val team = arg.firstOrNull()?.toIntOrNull()?.let { Team.all.getOrNull(it) }
+        if (team != null) {
+            setObTeam(player, team.takeUnless { it == Team.derelict })
+            return@body
+        }
+        MenuBuilder {
+            title = "观战系统"
+            msg = "By [gold]WayZer\n选择队伍观战"
+            teams.allTeam.forEach {
+                option(it.coloredName()) { setObTeam(player, it) }
+                newRow()
+            }
+            option("退出观战/重新投胎") { setObTeam(player, null) }
+            newRow()
+            option("关闭菜单") { }
+        }.sendTo(player)
+    }
+}
+
+PermissionApi.registerDefault("wayzer.ext.observer")
+
+listen<EventType.WorldLoadEndEvent> {
+    world.tiles.iterator().forEach {
+        if (it.team().id == 255) it.setAir()
+    }
+}

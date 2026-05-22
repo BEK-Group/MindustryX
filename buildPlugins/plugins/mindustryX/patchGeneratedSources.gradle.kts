@@ -1,6 +1,7 @@
 package mindustryX
 
 import java.io.ByteArrayOutputStream
+import org.gradle.api.GradleException
 
 tasks {
     // 配置
@@ -63,12 +64,68 @@ tasks {
         }
     }
 
-    val patchGeneratedSources by registering(Exec::class) {
+    val patchGeneratedSources by registering {
         group = "mdtx"
         dependsOn("kaptKotlin")
-        workingDir = kaptGenDir.get().asFile
-        environment("GIT_DIR", "NOT_GIT")
-        commandLine = listOf("git", "apply", "--ignore-space-change", "--ignore-whitespace", rootDir.resolve("../patches/generated.patch").absolutePath)
+        doLast {
+            val patch = rootDir.resolve("../patches/generated.patch")
+            val workDir = kaptGenDir.get().asFile
+
+            fun runGitApply(vararg args: String): Pair<Int, String> {
+                val process = ProcessBuilder("git", *args)
+                    .directory(workDir)
+                    .redirectErrorStream(true)
+                    .start()
+                val output = process.inputStream.bufferedReader(Charsets.UTF_8).readText().trim()
+                val exit = process.waitFor()
+                return exit to output
+            }
+
+            val forwardCheck = runGitApply(
+                "apply",
+                "--check",
+                "--ignore-space-change",
+                "--ignore-whitespace",
+                patch.absolutePath,
+            )
+            if(forwardCheck.first == 0){
+                val applyResult = runGitApply(
+                    "apply",
+                    "--ignore-space-change",
+                    "--ignore-whitespace",
+                    patch.absolutePath,
+                )
+                if(applyResult.first != 0){
+                    throw GradleException("Failed to apply generated.patch.\n${applyResult.second}")
+                }
+                return@doLast
+            }
+
+            val reverseCheck = runGitApply(
+                "apply",
+                "--reverse",
+                "--check",
+                "--ignore-space-change",
+                "--ignore-whitespace",
+                patch.absolutePath,
+            )
+            if(reverseCheck.first == 0){
+                logger.lifecycle("generated.patch already applied; skipping.")
+                return@doLast
+            }
+
+            throw GradleException(buildString {
+                appendLine("generated.patch does not apply cleanly to kapt output.")
+                if(forwardCheck.second.isNotBlank()){
+                    appendLine("Forward check:")
+                    appendLine(forwardCheck.second)
+                }
+                if(reverseCheck.second.isNotBlank()){
+                    appendLine("Reverse check:")
+                    appendLine(reverseCheck.second)
+                }
+            })
+        }
     }
 
     afterEvaluate {

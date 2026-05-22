@@ -57,7 +57,7 @@ index d42ffe6d4a318ce558f1010eae46140f88ed5c99..bf44ead5c58abfb79c500e6daae30c3e
 +    <string name="app_name">MindustryX</string>
  </resources>
 diff --git a/build.gradle b/build.gradle
-index 225fe1b5c45b87a14dd7a60d2e21d9be15306179..3eb7add7ad8bd93ab7cb03715b5ae530a11022e9 100644
+index a5b4e36f46c80aeca5dd73c881a73d4c58120c94..25d99e8372350fc4baf70ff64f358ab730f9f5ad 100644
 --- a/build.gradle
 +++ b/build.gradle
 @@ -7,7 +7,11 @@ buildscript{
@@ -83,10 +83,10 @@ index 225fe1b5c45b87a14dd7a60d2e21d9be15306179..3eb7add7ad8bd93ab7cb03715b5ae530
      ext{
          versionNumber = '8'
 diff --git a/core/build.gradle.kts b/core/build.gradle.kts
-index e1904111c3ca730e830b5c1bac3c1d5cacc6b3d1..e89b8f7fe020fc5d5f1fa444da3867624a13965c 100644
+index 441b4366206a21f8a5eedc433dd55b00de6a15d8..bc63d9ae23cffccb96877410c70b646fc7a3c299 100644
 --- a/core/build.gradle.kts
 +++ b/core/build.gradle.kts
-@@ -51,7 +51,7 @@ tasks {
+@@ -48,7 +48,7 @@ tasks {
          property("type", findProperty("versionType") ?: "official")
          property("modifier", findProperty("versionModifier") ?: "release")
          property("number", '7')

@@ -1,0 +1,26 @@
+package coreLibrary.commands
+
+import coreLibrary.lib.PlaceHold.registeredVars
+
+data class VarInfo(val script: ScriptInfo, val key: String, val desc: String)
+
+command("vars", "列出注册的所有模板变量".with(), commands = Commands.controlCommand) {
+    usage = "[-v] [page]"
+    permission = "scriptAgent.vars"
+    body {
+        val detail = checkArg("-v")
+        val page = arg.firstOrNull()?.toIntOrNull() ?: 1
+        val all = mutableListOf<VarInfo>()
+        ScriptRegistry.allScripts().sortedBy { it.id }.forEach { script ->
+            script.inst?.registeredVars?.mapTo(all) { (key, desc) ->
+                VarInfo(script, key, desc)
+            }
+        }
+        returnReply(menu("模板变量", all, page, 15) {
+            "[green]{key} [blue]{desc} [purple]{from}".with(
+                "key" to it.key, "desc" to it.desc,
+                "from" to (if (detail) it.script.id else "")
+            )
+        })
+    }
+}
