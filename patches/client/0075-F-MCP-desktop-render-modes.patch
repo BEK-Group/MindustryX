@@ -1,0 +1,212 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: local <local@build>
+Date: Sat, 23 May 2026 00:00:00 +0800
+Subject: [PATCH] F: MCP desktop render modes
+
+---
+ core/src/mindustry/ClientLauncher.java          |  8 ++++++--
+ core/src/mindustry/Vars.java                    |  2 ++
+ core/src/mindustry/core/Renderer.java           | 17 ++++++++++++++---
+ desktop/build.gradle                            | 27 +++++++++++++++++++++++++-
+ desktop/src/mindustry/desktop/DesktopLauncher.java | 17 +++++++++++++++++
+ desktop/src/mindustry/desktop/NoRenderLauncher.java | 10 ++++++++++
+ 6 files changed, 75 insertions(+), 6 deletions(-)
+ create mode 100644 desktop/src/mindustry/desktop/NoRenderLauncher.java
+
+diff --git a/core/src/mindustry/ClientLauncher.java b/core/src/mindustry/ClientLauncher.java
+index b957924..1f3b55b 100644
+--- a/core/src/mindustry/ClientLauncher.java
++++ b/core/src/mindustry/ClientLauncher.java
+@@ -51,6 +51,8 @@ public abstract class ClientLauncher extends ApplicationCore implements Platform
+             Core.settings.setDataDirectory(files.absolute(dataDir));
+         }
+ 
++        disableRender = disableRender || Boolean.getBoolean("mindustry.disableRender") || OS.hasProp("mindustry.disableRender") || OS.hasProp("disableRender");
++        disableUI = disableRender;
+         checkLaunch();
+         loadLogger();
+ 
+@@ -241,7 +243,7 @@ public abstract class ClientLauncher extends ApplicationCore implements Platform
+         }
+ 
+         if(!finished){
+-            if(loader != null){
++            if(loader != null && !disableRender){
+                 loader.draw();
+             }
+             if(assets.update(1000 / loadingFPS)){
+@@ -273,7 +275,9 @@ public abstract class ClientLauncher extends ApplicationCore implements Platform
+         }
+ 
+         if(limitFps){
+-            Gl.flush();//MDTX: flush GL, let the GPU do the work before swap buffer.
++            if(!disableRender){
++                Gl.flush();//MDTX: flush GL, let the GPU do the work before swap buffer.
++            }
+             long current = Time.nanos();
+             if(nextFrame > current){
+                 long toSleep = nextFrame - current;
+diff --git a/core/src/mindustry/Vars.java b/core/src/mindustry/Vars.java
+index fba02d5..8e1e306 100644
+--- a/core/src/mindustry/Vars.java
++++ b/core/src/mindustry/Vars.java
+@@ -186,6 +186,8 @@ public class Vars implements Loadable{
+     public static boolean confirmExit = true;
+     /** if true, UI is not drawn */
+     public static boolean disableUI;
++    /** if true, world rendering is skipped while logic still runs */
++    public static boolean disableRender;
+     /** if true, most autosaving is disabled. internal use only! */
+     public static boolean disableSave;
+     /** if true, game is set up in mobile mode, even on desktop. used for debugging */
+diff --git a/core/src/mindustry/core/Renderer.java b/core/src/mindustry/core/Renderer.java
+index 099efb2..fc17f45 100644
+--- a/core/src/mindustry/core/Renderer.java
++++ b/core/src/mindustry/core/Renderer.java
+@@ -151,7 +151,6 @@ public class Renderer implements ApplicationListener{
+ 
+     @Override
+     public void update(){
+-        PerfCounter.render.begin();
+         Color.white.set(1f, 1f, 1f, 1f);
+ 
+         float baseTarget = targetscale;
+@@ -197,6 +196,19 @@ public class Renderer implements ApplicationListener{
+         camera.width = graphics.getWidth() / camerascale;
+         camera.height = graphics.getHeight() / camerascale;
+ 
++        if(disableRender){
++            if(Float.isNaN(camera.position.x) || Float.isNaN(camera.position.y)){
++                camera.position.set(player);
++            }
++            camera.update();
++            if(state.isMenu()){
++                landTime = 0f;
++            }
++            return;
++        }
++
++        PerfCounter.render.begin();
++
+         if(state.isMenu()){
+             landTime = 0f;
+             graphics.clear(Color.black);
+@@ -591,6 +603,7 @@ public class Renderer implements ApplicationListener{
+ 
+         drawWeather = false;
+         float vpW = camera.width, vpH = camera.height, px = camera.position.x, py = camera.position.y;
++        boolean prevDisableUI = disableUI;
+         disableUI = true;
+         camera.width = w;
+         camera.height = h;
+@@ -601,7 +614,7 @@ public class Renderer implements ApplicationListener{
+         Draw.flush();
+         byte[] lines = ScreenUtils.getFrameBufferPixels(0, 0, w, h, true);
+         buffer.end();
+-        disableUI = false;
++        disableUI = prevDisableUI;
+         camera.width = vpW;
+         camera.height = vpH;
+         camera.position.set(px, py);
+diff --git a/desktop/build.gradle b/desktop/build.gradle
+index bbab133..e1b489b 100644
+--- a/desktop/build.gradle
++++ b/desktop/build.gradle
+@@ -59,4 +59,29 @@ tasks.register('dist', Jar){
+         attributes 'Enable-Native-Access': 'ALL-UNNAMED'
+         attributes 'Multi-Release': 'true'
+     }
+-}
+\ No newline at end of file
++}
++
++tasks.register('distNoRender', Jar){
++    dependsOn configurations.runtimeClasspath
++    dependsOn ":desktop:processResources"
++
++    from files(sourceSets.main.output.classesDirs)
++    from files(sourceSets.main.output.resourcesDir)
++    from{ configurations.runtimeClasspath.collect{ it.isDirectory() ? it : zipTree(it) } }
++    from(files(tasks.getByPath(":core:allAssets")))
++    exclude("config/**")
++    exclude("**hs_err**.log")
++    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
++
++    if(!versionModifier.contains("steam")){
++        exclude("**steam**.so", "**steam**.dll", "**steam**.dylib")
++    }
++
++    archiveFileName = "${appName}-no-render.jar"
++
++    manifest{
++        attributes 'Main-Class': "mindustry.desktop.NoRenderLauncher"
++        attributes 'Enable-Native-Access': 'ALL-UNNAMED'
++        attributes 'Multi-Release': 'true'
++    }
++}
+diff --git a/desktop/src/mindustry/desktop/DesktopLauncher.java b/desktop/src/mindustry/desktop/DesktopLauncher.java
+index e9bd8de..925ae9d 100644
+--- a/desktop/src/mindustry/desktop/DesktopLauncher.java
++++ b/desktop/src/mindustry/desktop/DesktopLauncher.java
+@@ -49,6 +49,15 @@ public class DesktopLauncher extends ClientLauncher{
+             check32Bit();
+             checkJavaVersion();
+ 
++            boolean disableRenderLaunch = Boolean.getBoolean("mindustry.disableRender") || OS.hasProp("mindustry.disableRender") || OS.hasProp("disableRender");
++            for(String value : arg){
++                if("-disableRender".equalsIgnoreCase(value) || "--disableRender".equalsIgnoreCase(value)){
++                    disableRenderLaunch = true;
++                    break;
++                }
++            }
++            disableRender = disableRenderLaunch;
++
+             new SdlApplication(new DesktopLauncher(arg), new SdlConfig(){{
+                 title = "Mindustry";
+                 maximized = true;
+@@ -93,6 +102,7 @@ public class DesktopLauncher extends ClientLauncher{
+                             case "debug" -> Log.level = LogLevel.debug;
+                             case "maximized" -> maximized = Boolean.parseBoolean(arg[i + 1]);
+                             case "testMobile" -> testMobile = true;
++                            case "disableRender", "-disableRender" -> disableRender = true;
+                             case "gltrace" -> {
+                                 Events.on(ClientCreateEvent.class, e -> {
+                                     var profiler = new GLProfiler(Core.graphics);
+@@ -108,6 +118,7 @@ public class DesktopLauncher extends ClientLauncher{
+                         }
+                     }
+                 }
++                initialVisible = !disableRender;
+                 setWindowIcon(FileType.internal, "icon.png");
+             }});
+         }catch(Throwable e){
+@@ -207,6 +218,13 @@ public class DesktopLauncher extends ClientLauncher{
+         }
+     }
+ 
++    @Override
++    public void hide(){
++        if(Core.app instanceof SdlApplication app){
++            SDL.SDL_MinimizeWindow(app.getWindow());
++        }
++    }
++
+     void initSteam(String[] args){
+         SVars.net = new SNet(new ArcNetProvider());
+         SVars.stats = new SStats();
+diff --git a/desktop/src/mindustry/desktop/NoRenderLauncher.java b/desktop/src/mindustry/desktop/NoRenderLauncher.java
+new file mode 100644
+index 0000000..3e9cb11
+--- /dev/null
++++ b/desktop/src/mindustry/desktop/NoRenderLauncher.java
+@@ -0,0 +1,10 @@
++package mindustry.desktop;
++
++public class NoRenderLauncher{
++    public static void main(String[] args){
++        System.setProperty("mindustry.disableRender", "true");
++        System.setProperty("disableRender", "true");
++        DesktopLauncher.main(args);
++    }
++}
++
